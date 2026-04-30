@@ -1,6 +1,6 @@
 # 📑 Project Log - eSportCal
 
-Stage 1 Report
+# Stage 1: Team Formation, Brainstorming and MVP
 
 ## 👤 Team, Vision & Norms
 - **Project Name** : eSportCal.
@@ -79,7 +79,7 @@ We conducted a collaborative research session using the **SCAMPER framework** an
 
 ---
 
-# 📅 Stage 2: Project Planning - eSportCal
+# Stage 2: Project Planning
 
 ## 0. Project Charter Overview
 The objective of this stage is to establish a clear roadmap for **eSportCal**. By outlining our timeline and milestones, we ensure that both team members (Antoine & Ilan) stay aligned on goals and deadlines throughout the development process.
