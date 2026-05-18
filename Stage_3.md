@@ -176,13 +176,19 @@ sequenceDiagram
 
 ### Internal API Endpoints (eSportCal API)
 
-| Endpoint | Method | Input (Body / Query) | Output Format (JSON) | Description |
+| Endpoint | Method | Input (Body / Query / Params) | Output Format (JSON) | Description |
 | :--- | :---: | :--- | :--- | :--- |
-| `/api/auth/register`| `POST` | `{ email, username, password }` | `{ token: "jwt_string", user: { id, username } }` | Creates a new user in DB. |
-| `/api/auth/login` | `POST` | `{ email, password }` | `{ token: "jwt_string" }` | Authenticates a user. |
-| `/api/favorites`| `POST` | Header: `Bearer Token`<br>Body: `{ type: "team", target_id: 123 }` | `{ message: "Added successfully" }` | Adds a favorite to DB. |
-| `/api/favorites`| `GET` | Header: `Bearer Token` | `[ { type: "team", target_id: 123 }, ... ]` | Lists user favorites. |
-| `/api/matches` | `GET` | Query: `?game=cs2&league=45` | `[ { match_id: 1, team_A: "...", time: "..." } ]` | Proxies PandaScore data. |
+| **Authentication & Users** | | | | |
+| `/api/auth/register`| `POST` | Body: `{ "email": "...", "username": "...", "password": "..." }` | `{ "token": "jwt_string", "user": {...} }` | Creates a new user in DB. |
+| `/api/auth/login` | `POST` | Body: `{ "email": "...", "password": "..." }` | `{ "token": "jwt_string", "user": {...} }` | Authenticates a user. |
+| `/api/users/me` | `PUT` | Header: `Bearer Token`<br>Body: `{ "new_password": "..." }` | `{ "message": "Password updated" }` | Updates user profile (US.U2). |
+| `/api/users/me` | `DELETE`| Header: `Bearer Token` | `{ "message": "Account deleted" }` | Deletes user account (GDPR - US.U2). |
+| **Favorites Engine** | | | | |
+| `/api/favorites`| `POST` | Header: `Bearer Token`<br>Body: `{ "type": "team", "target_id": 123 }` | `{ "message": "Added successfully" }` | Adds a favorite entity to DB. |
+| `/api/favorites`| `GET` | Header: `Bearer Token` | `[ { "type": "team", "target_id": 123 }, ... ]` | Lists user favorites. |
+| `/api/favorites/:id`| `DELETE`| Header: `Bearer Token`<br>Params: `id` (Favorite ID) | `{ "message": "Favorite removed" }` | Removes a specific favorite. |
+| **Matches (PandaScore Proxy)** | | | | |
+| `/api/matches` | `GET` | Query: `?game=cs2&league=45&team=123` | `[ { "match_id": 1, "team_A": "...", "time": "..." } ]` | Proxies and formats PandaScore data. |
 
 ---
 
