@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # 🐘 1. Database Service (PostgreSQL with persistent volume)
+  db:
+    image: postgres:15
+    container_name: esportcal-db
+    restart: always
+    environment:
+      POSTGRES_USER: antoine
+      POSTGRES_PASSWORD: secure_password_esportcal_2026
+      POSTGRES_DB: esportcal_db
+    ports:
+      - "5432:5432" # Exposed to host so seeds/tests can run locally
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # ⚙️ 2. Backend Service (Node.js/Express REST API)
+  backend:
+    build: ./backend
+    container_name: esportcal-backend
+    restart: always
+    ports:
+      - "5001:5001"
+    environment:
+      PORT: 5001
+      DB_USER: antoine
+      DB_PASSWORD: secure_password_esportcal_2026
+      DB_HOST: db # Uses docker network host mapping to 'db' service
+      DB_PORT: 5432
+      DB_NAME: esportcal_db
+      JWT_SECRET: super_secret_phrase_esportcal_holberton_2026
+      PANDASCORE_API_KEY: Yv3VOSY5oxZvv8kUCLazqT-6LT0qEBKN2mpGd-AWRQOZ0vgCeFg
+      NODE_ENV: development # Sets to development for local container verification
+      EMAIL_HOST: smtp.gmail.com
+      EMAIL_PORT: 465
+      EMAIL_USER: esportcalndr@gmail.com
+      EMAIL_PASS: csig rhdr nrgu tzue
+      EMAIL_TO: esportcalndr@gmail.com
+    depends_on:
+      - db
+
+  # 🖥️ 3. Frontend Service (React/Vite served by Nginx)
+  frontend:
+    build: ./frontend
+    container_name: esportcal-frontend
+    restart: always
+    ports:
+      - "80:80" # Maps local HTTP port 80 to Nginx container
+    depends_on:
+      - backend
+
+# 💾 Named Volume to persist database data across container lifecycles
+volumes:
+  postgres_data:
