@@ -22,21 +22,12 @@ services:
     restart: always
     ports:
       - "5001:5001"
+    env_file:
+      - ./backend/.env
     environment:
-      PORT: 5001
-      DB_USER: antoine
-      DB_PASSWORD: secure_password_esportcal_2026
-      DB_HOST: db # Uses docker network host mapping to 'db' service
-      DB_PORT: 5432
-      DB_NAME: esportcal_db
-      JWT_SECRET: super_secret_phrase_esportcal_holberton_2026
-      PANDASCORE_API_KEY: Yv3VOSY5oxZvv8kUCLazqT-6LT0qEBKN2mpGd-AWRQOZ0vgCeFg
-      NODE_ENV: development # Sets to development for local container verification
-      EMAIL_HOST: smtp.gmail.com
-      EMAIL_PORT: 465
-      EMAIL_USER: esportcalndr@gmail.com
-      EMAIL_PASS: csig rhdr nrgu tzue
-      EMAIL_TO: esportcalndr@gmail.com
+      - DB_HOST=db # Overrides localhost to container db hostname
+      - DB_PASSWORD=secure_password_esportcal_2026 # Overrides to match postgres service container password
+      - NODE_ENV=development
     depends_on:
       - db
 
