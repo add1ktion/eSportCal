@@ -30,7 +30,7 @@ The primary goal of Sprint 1 was to build the technical foundation of the **eSpo
 - **macOS Port 5000 Conflict**: On macOS Monterey and above, port 5000 is occupied by Apple's AirPlay Receiver. This caused the Node server to exit silently without descriptive errors. 
   - *Mitigation*: We changed the local server port to `5001` in the `.env` file, resolving the conflict.
 - **Missing Database Driver**: During local testing, the `pg` driver was missing from `package.json` due to a typo in dependencies.
-  - *Mitigation*: Run code reviews (QA check-up) to catch missing modules and install them (`npm install pg`) before pushing to the remote repository.
+  - *Mitigation*: Installed the missing driver (`npm install pg`) and ran code reviews to catch missing modules before pushing to the remote repository.
 
 ---
 
