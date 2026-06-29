@@ -106,10 +106,35 @@ erDiagram
         int pandascore_league_id
     }
 
+    MATCHES {
+        int id PK
+        string name
+        string status
+        datetime scheduled_at
+        string game_name
+        string game_slug
+        string league_name
+        string league_image
+        string serie_name
+        string stage_name
+        int number_of_games
+        string match_type
+        string stream_url
+        jsonb teams
+    }
+
+    TEAMS_CACHE {
+        int id PK
+        string name
+        string image_url
+        jsonb players
+        datetime updated_at
+    }
+
     USERS ||--o{ FAVORITE_TEAMS : "has"
     USERS ||--o{ FAVORITE_LEAGUES : "has"
 ```
-*(Note: Match data is intentionally NOT stored in our database. It is fetched dynamically from PandaScore to ensure real-time accuracy and save storage. We only persist Users and their PandaScore relational IDs).*
+*(Note: To prevent hitting PandaScore API rate limits and ensure lightning-fast client loading, match data and detailed team rosters are cached locally in the database. A background synchronizer cron job periodically aligns the local `matches` cache, while team rosters are lazy-loaded and cached in `teams_cache` upon selection).*
 
 ---
 
