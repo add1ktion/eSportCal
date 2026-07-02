@@ -27,7 +27,6 @@ services:
     environment:
       - DB_HOST=db # Overrides localhost to container db hostname
       - DB_PASSWORD=secure_password_esportcal_2026 # Overrides to match postgres service container password
-      - NODE_ENV=development
     depends_on:
       - db
 
