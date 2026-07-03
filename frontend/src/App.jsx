@@ -159,6 +159,16 @@ function App() {
     }
   };
 
+  // Handle successful login
+  const handleLoginSuccess = (userData, token) => {
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
+    setIsLoggedIn(true);
+    setShowAuthModal(false);
+    fetchUserFavorites(token, userData);
+  };
+
   // 🔄 PERSISTENCE CHECK ON STARTUP
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -182,6 +192,20 @@ function App() {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
 
+    // Check URL parameters for OAuth successful redirect
+    const ssoToken = params.get('token');
+    const ssoUserRaw = params.get('user');
+    if (ssoToken && ssoUserRaw) {
+      try {
+        const ssoUser = JSON.parse(decodeURIComponent(ssoUserRaw));
+        handleLoginSuccess(ssoUser, ssoToken);
+        // Clean query params from URL bar for clean UX
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } catch (err) {
+        console.error('Failed to parse SSO user from URL params:', err);
+      }
+    }
+
     // Fetch matches from local Postgres cache
     axios.get('http://localhost:5001/api/matches')
       .then(res => {
@@ -192,6 +216,7 @@ function App() {
         console.error('Error fetching matches:', err);
         setLoading(false);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Filter matches based on sidebar filters
@@ -303,16 +328,6 @@ function App() {
 
   const closeAlert = () => {
     setAlertState(prev => ({ ...prev, isOpen: false }));
-  };
-
-  // Handle successful login
-  const handleLoginSuccess = (userData, token) => {
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setUser(userData);
-    setIsLoggedIn(true);
-    setShowAuthModal(false);
-    fetchUserFavorites(token, userData);
   };
 
   // Handle Logout
