@@ -35,15 +35,16 @@ Our application follows a standard decoupled Client-Server RESTful Architecture.
 ### System Architecture Diagram
 ```mermaid
 graph TD
-    subgraph Client [Frontend - React.js]
+    subgraph Client [Frontend - React.js / Nginx]
         UI[React UI Components]
-        State[State / React Context]
+        State[State / Hooks]
     end
 
     subgraph Server [Backend - Node.js / Express]
         API[eSportCal REST API]
-        Auth[Auth Middleware / JWT]
-        DataFetcher[PandaScore Service Proxy]
+        Auth[Auth Middleware / JWT / bcrypt]
+        Sync[Cron Sync matchesJob]
+        CacheManager[Lazy-loading cache]
     end
 
     subgraph Persistence [Database]
@@ -52,37 +53,69 @@ graph TD
 
     subgraph External [External Services]
         PandaScore[PandaScore API]
+        SMTP[SMTP Mail Server]
     end
 
-    UI <-->|HTTP/JSON Requests| API
+    UI <-->|HTTP / JWT Requests| API
     API <--> Auth
     API <-->|SQL Queries| DB
-    DataFetcher -->|Fetch Schedules| PandaScore
-    API <--> DataFetcher
+    Sync -->|Daily updates| DB
+    Sync -->|Fetch matches| PandaScore
+    CacheManager <-->|Read/Write cache| DB
+    CacheManager -->|Roster Fetch| PandaScore
+    API <--> CacheManager
+    API -->|Email Verification / Reset| SMTP
 ```
 
 ### Database Entity-Relationship Diagram (ERD)
-Match data is not stored in our database to ensure real-time accuracy and save storage. We only persist Users and map their favorite PandaScore relational IDs.
+Our database acts as a storage layer for user profiles and a local proxy cache for esports data to respect PandaScore API rate limits.
 
 ```mermaid
 erDiagram
-    USERS {
-        UUID id PK
-        string username
-        string email
-        string password_hash
-        datetime created_at
+    users {
+        SERIAL id PK
+        VARCHAR username
+        VARCHAR email "unique, indexed"
+        VARCHAR password_hash
+        BOOLEAN is_verified
+        VARCHAR verification_token
+        TIMESTAMP verification_token_expires_at
+        VARCHAR reset_token "indexed"
+        TIMESTAMP reset_token_expires_at
+        TIMESTAMP created_at
     }
-    FAVORITE_TEAMS {
-        UUID user_id FK
-        int pandascore_team_id
+    user_favorites {
+        SERIAL id PK
+        INT user_id FK
+        INT pandascore_team_id
+        TIMESTAMP created_at
     }
-    FAVORITE_LEAGUES {
-        UUID user_id FK
-        int pandascore_league_id
+    matches {
+        SERIAL id PK
+        INT pandascore_id "unique"
+        VARCHAR status
+        VARCHAR game_slug
+        VARCHAR game_name
+        VARCHAR league_name
+        VARCHAR serie_name
+        VARCHAR stage_name
+        TIMESTAMP scheduled_at "indexed"
+        VARCHAR stream_url
+        VARCHAR team_a_name
+        VARCHAR team_a_logo
+        VARCHAR team_b_name
+        VARCHAR team_b_logo
+        INT team_a_score
+        INT team_b_score
+        TIMESTAMP last_updated
     }
-    USERS ||--o{ FAVORITE_TEAMS : "has"
-    USERS ||--o{ FAVORITE_LEAGUES : "has"
+    teams_cache {
+        INT pandascore_id PK
+        JSONB data
+        TIMESTAMP last_updated
+    }
+
+    users ||--o{ user_favorites : "saves"
 ```
 
 ## 🚀 Getting Started (Local Development)
