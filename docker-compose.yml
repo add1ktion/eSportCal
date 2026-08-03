@@ -15,13 +15,13 @@ services:
 
   # ⚙️ 2. Backend Service (Node.js/Express REST API)
   backend:
-    build: ./backend
+    build: ../eSportCal-backend
     container_name: esportcal-backend
     restart: always
     ports:
       - "5001:5001"
     env_file:
-      - ./backend/.env
+      - ../eSportCal-backend/.env
     environment:
       - DB_HOST=db # Overrides localhost to container db hostname
       - DB_PASSWORD=secure_password_esportcal_2026 # Overrides to match postgres service container password
@@ -30,7 +30,7 @@ services:
 
   # 🖥️ 3. Frontend Service (React/Vite served by Nginx)
   frontend:
-    build: ./frontend
+    build: ../eSportCal-frontend
     container_name: esportcal-frontend
     restart: always
     ports:

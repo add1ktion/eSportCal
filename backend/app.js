@@ -21,9 +21,32 @@ app.use('/api/user/favorites', favoritesRoutes); // Must register favorites befo
 app.use('/api/user', userRoutes);
 app.use('/api', matchesRoutes); // Gère /api/matches, /api/teams/:id, /api/contact
 
-// ─── Health check ─────────────────────────
+// ─── Health check & Monitoring ─────────────────────────
 app.get('/', (req, res) => {
     res.send('eSportCal API is running...');
+});
+
+const db = require('./db');
+app.get('/api/health', async (req, res) => {
+    try {
+        // Query database to ensure connection is active
+        await db.query('SELECT 1');
+        return res.status(200).json({
+            status: 'UP',
+            uptime: process.uptime(),
+            timestamp: new Date().toISOString(),
+            database: 'CONNECTED'
+        });
+    } catch (err) {
+        console.error('❌ Health check database connection failure:', err.message);
+        return res.status(503).json({
+            status: 'DOWN',
+            uptime: process.uptime(),
+            timestamp: new Date().toISOString(),
+            database: 'DISCONNECTED',
+            error: err.message
+        });
+    }
 });
 
 module.exports = app;
